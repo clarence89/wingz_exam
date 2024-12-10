@@ -28,6 +28,8 @@ class RideSerializer(serializers.ModelSerializer):
         return GetRideEventSerializer(todays_events, many=True).data
     
 class GetRideSerializer(serializers.ModelSerializer):
+    rider = UserRideSerializer(read_only=True)
+    driver = UserRideSerializer(read_only=True)
     class Meta:
         model = Ride
         fields = '__all__'

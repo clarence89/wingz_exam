@@ -1,6 +1,6 @@
 
 from django.core.management.base import BaseCommand
-from users.models import User
+from users.models import User, Role
 
 
 class Command(BaseCommand):
@@ -14,6 +14,7 @@ class Command(BaseCommand):
             users = User.objects.create_superuser(username, email, password)
             users.first_name = "Clarence"
             users.last_name = "Baluyot"
+            users.role = Role.objects.get(name="admin")
             users.save()
             self.stdout.write(self.style.SUCCESS("Superuser created successfully."))
         else:

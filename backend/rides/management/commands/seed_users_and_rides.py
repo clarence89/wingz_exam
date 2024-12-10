@@ -3,6 +3,9 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import now
 from users.models import User
 from rides.models import Ride, RideEvent
+from datetime import  timedelta
+from django.utils import timezone
+from users.models import Role
 
 
 class Command(BaseCommand):
@@ -15,16 +18,17 @@ class Command(BaseCommand):
         self.stdout.write("Seeding complete!")
 
     def seed_users(self):
-        # Check if users exist, to avoid duplicates
         if User.objects.count() >= 10:
             self.stdout.write("Users already seeded.")
             return
 
-        for i in range(10):  # Create 10 users
+        for i in range(10): 
+            role = random.choice(Role.objects.all())
             User.objects.create_user(
                 username=f"user_{i}",
                 email=f"user_{i}@example.com",
                 password="password123",
+                role=role
             )
         self.stdout.write("Users seeded.")
 
@@ -34,10 +38,10 @@ class Command(BaseCommand):
             self.stdout.write("Not enough users to seed rides.")
             return
 
-        riders = users[:5]  # First 5 users as riders
-        drivers = users[5:]  # Last 5 users as drivers
+        riders = users[:5] 
+        drivers = users[5:] 
 
-        for i in range(10):  # Create 10 rides
+        for i in range(10): 
             ride = Ride.objects.create(
                 rider=random.choice(riders),
                 driver=random.choice(drivers),
@@ -52,10 +56,31 @@ class Command(BaseCommand):
 
         self.stdout.write("Rides seeded.")
 
+
+
     def seed_ride_events(self, ride):
-        for i in range(random.randint(1, 5)):  # Create 1-5 events per ride
-            RideEvent.objects.create(
-                ride=ride,
-                description=f"Event {i+1} for Ride {ride.id_ride}",
+        possible_statuses = ["en-route", "pickup", "dropoff"]
+
+        time = timezone.now()
+
+        for i, status in enumerate(possible_statuses):
+            time_adjusted = time + timedelta(
+                minutes=random.randint(0, 59),
+                hours=random.randint(0, 1),
             )
+
+            print(f"Creating event for {status} at {time_adjusted}")
+
+            ride_event = RideEvent.objects.create(
+                ride=ride,
+                description=f"Status Changed to {status}",
+            )
+            
+            ride_event.created_at = time_adjusted
+            ride_event.save()
+            if status == ride.status:
+                break
+
+
+
         self.stdout.write(f"Events seeded for Ride {ride.id_ride}.")

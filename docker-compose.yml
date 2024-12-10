@@ -21,13 +21,13 @@ services:
       context: ./backend/
       dockerfile: ./Dockerfile
     command: >
-      sh -c " pipenv install
-            python manage.py makemigrations &&
-            python manage.py migrate &&
-            python manage.py seed_users_and_rides
-            python manage.py seed_roles
-            python manage.py createpreset_superuser
-            python manage.py runserver 0.0.0.0:8000"
+      sh -c "pipenv install &&
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py seed_roles &&
+             python manage.py seed_users_and_rides &&
+             python manage.py createpreset_superuser &&
+             python manage.py runserver 0.0.0.0:8000"
     env_file: ./backend/.env
     ports:
       - "8000:8000"
@@ -45,6 +45,9 @@ services:
       - "3000:3000"
     command: >
       sh -c "npm install && npm run dev"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      NUXT_TELEMETRY_DISABLED: "1"
 
   caddy:
     restart: always

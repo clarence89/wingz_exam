@@ -39,6 +39,7 @@ class RideViewSet(viewsets.ModelViewSet):
                 user_latitude = float(user_latitude)
                 user_longitude = float(user_longitude)
             except ValueError:
+                logger.error("Invalid latitude or longitude format.")
                 raise ValueError("Invalid latitude or longitude format.")
 
             lat_diff = Radians(F('pickup_latitude')) - Radians(Value(user_latitude))
@@ -46,7 +47,14 @@ class RideViewSet(viewsets.ModelViewSet):
 
             distance_expr = ACos(Sin(lat_diff) * Sin(lat_diff) + Cos(lat_diff) * Cos(lat_diff) * Cos(lon_diff)) * 6371
 
-            queryset = queryset.annotate(distance=ExpressionWrapper(distance_expr, output_field=FloatField())).order_by('distance')
+            try:
+                queryset = queryset.annotate(distance=ExpressionWrapper(distance_expr, output_field=FloatField())).order_by('distance')
+            except Exception as e:
+                logger.error(
+                    "An error occurred while ordering queryset by distance. "
+                    "Error message : %s" % e
+                )
+                raise e
         for query in connection.queries:
             print(query['sql'])
         print(queryset.query) 
