@@ -24,10 +24,14 @@ class Command(BaseCommand):
 
         for i in range(10): 
             role = random.choice(Role.objects.all())
+            first_name = random.choice(["John", "Jane", "Jim", "Jill", "Jack"])
+            last_name = random.choice(["Doe", "Smith", "Johnson", "Williams", "Jones"])
             User.objects.create_user(
                 username=f"user_{i}",
                 email=f"user_{i}@example.com",
                 password="password123",
+                first_name=first_name,
+                last_name=last_name,
                 role=role
             )
         self.stdout.write("Users seeded.")
