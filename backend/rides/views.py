@@ -8,6 +8,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import BasePermission
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from django.db.models import F, Value, FloatField, ExpressionWrapper
+from django.db.models.functions import Radians, Sin, Cos, ACos
 
 from .filters import RideFilter
 import logging
@@ -32,14 +34,29 @@ class RideViewSet(viewsets.ModelViewSet):
     pagination_class = ViewsetPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = RideFilter
-    ordering_fields = ['pickup_time'] 
-    ordering = ['-pickup_time']
-    # def get_queryset(self):
-    #     queryset = super().get_queryset()
-    #     queryset = self.filter_queryset(queryset) 
-    #     print(f"Query params: {self.request.query_params}")
-    #     print(f"Queryset after filters: {queryset.query}")
-    #     return queryset
+    ordering_fields = ['pickup_time', 'distance'] 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # A very chatGPT generated solution. I don't know the formula, then search to chatGPT
+        user_latitude = self.request.query_params.get('latitude')
+        user_longitude = self.request.query_params.get('longitude')
+
+        if user_latitude and user_longitude:
+            try:
+                user_latitude = float(user_latitude)
+                user_longitude = float(user_longitude)
+            except ValueError:
+                raise ValueError("Invalid latitude or longitude format.")
+
+            lat_diff = Radians(F('pickup_latitude')) - Radians(Value(user_latitude))
+            lon_diff = Radians(F('pickup_longitude')) - Radians(Value(user_longitude))
+
+            distance_expr = ACos(Sin(lat_diff) * Sin(lat_diff) + Cos(lat_diff) * Cos(lat_diff) * Cos(lon_diff)) * 6371
+
+            queryset = queryset.annotate(distance=ExpressionWrapper(distance_expr, output_field=FloatField())).order_by('distance')
+
+        return queryset
 
 @swagger_auto_schema(tags=["RideEvents"])
 class RideEventViewSet(viewsets.ModelViewSet):
