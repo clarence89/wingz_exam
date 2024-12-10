@@ -4,28 +4,19 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Ride, RideEvent
 from .serializer import RideSerializer, RideEventSerializer
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import BasePermission
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from django.db.models import F, Value, FloatField, ExpressionWrapper
 from django.db.models.functions import Radians, Sin, Cos, ACos
+from .permissions import IsAdminUser
+from .pagination import ViewsetPagination
+from django.db import connection
 
 from .filters import RideFilter
 import logging
 logger = logging.getLogger(__name__)
 
-## Can be done using Manager to all Models. which will return None or empty list. when role is not admin. But i Just place it here for now
-class IsAdminUser(BasePermission):
-    def has_permission(self, request, view):
-        if request.user and request.user.is_authenticated:
-            return request.user and request.user.role and request.user.role.name == "admin"
-        return False
 
-class ViewsetPagination(LimitOffsetPagination):
-    default_limit = 10
-    limit_query_param = 'limit'
-    offset_query_param = 'offset'
 
 @swagger_auto_schema(tags=["Rides"])
 class RideViewSet(viewsets.ModelViewSet):
@@ -35,7 +26,7 @@ class RideViewSet(viewsets.ModelViewSet):
     pagination_class = ViewsetPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = RideFilter
-    ordering_fields = ['pickup_time', 'distance'] 
+    ordering_fields = ['pickup_time', 'distance']
     def get_queryset(self):
         queryset = super().get_queryset()
 
@@ -56,7 +47,9 @@ class RideViewSet(viewsets.ModelViewSet):
             distance_expr = ACos(Sin(lat_diff) * Sin(lat_diff) + Cos(lat_diff) * Cos(lat_diff) * Cos(lon_diff)) * 6371
 
             queryset = queryset.annotate(distance=ExpressionWrapper(distance_expr, output_field=FloatField())).order_by('distance')
-
+        for query in connection.queries:
+            print(query['sql'])
+        print(queryset.query) 
         return queryset
 
 @swagger_auto_schema(tags=["RideEvents"])
