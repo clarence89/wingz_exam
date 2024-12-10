@@ -23,7 +23,7 @@ class Ride(models.Model):
     pickup_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return self.id_ride
+        return f"Ride {self.id_ride} for {self.rider}"
     
 class RideEvent(models.Model):
     id_ride_event = models.AutoField(primary_key=True)

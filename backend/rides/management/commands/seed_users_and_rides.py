@@ -1,8 +1,8 @@
 import random
 from django.core.management.base import BaseCommand
 from django.utils.timezone import now
-from users.models import User 
-from rides.models import Ride, RideEvent  
+from users.models import User
+from rides.models import Ride, RideEvent
 
 
 class Command(BaseCommand):
@@ -39,8 +39,8 @@ class Command(BaseCommand):
 
         for i in range(10):  # Create 10 rides
             ride = Ride.objects.create(
-                id_rider=random.choice(riders),
-                id_driver=random.choice(drivers),
+                rider=random.choice(riders),
+                driver=random.choice(drivers),
                 status=random.choice(["en-route", "pickup", "dropoff"]),
                 pickup_latitude=random.uniform(-90, 90),
                 pickup_longitude=random.uniform(-180, 180),
@@ -55,7 +55,7 @@ class Command(BaseCommand):
     def seed_ride_events(self, ride):
         for i in range(random.randint(1, 5)):  # Create 1-5 events per ride
             RideEvent.objects.create(
-                id_ride=ride,
+                ride=ride,
                 description=f"Event {i+1} for Ride {ride.id_ride}",
             )
         self.stdout.write(f"Events seeded for Ride {ride.id_ride}.")
