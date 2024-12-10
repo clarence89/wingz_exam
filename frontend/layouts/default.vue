@@ -3,7 +3,7 @@
     <!-- Navbar -->
     <nav class="bg-mmwgh p-4 text-white">
       <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-semibold">IPScanner System</h1>
+        <h1 class="text-2xl font-semibold">{{appName}}</h1>
         <!-- Hamburger menu for mobile -->
 
         <button @click="toggleMobileMenu" class="lg:hidden">
@@ -152,9 +152,9 @@ import { useAuthStore } from "~/stores/auth";
 const appConfig = useAppConfig();
 const colorMode = useColorMode();
 const store = useAuthStore();
-
+const config = useRuntimeConfig();
 const isMobileMenuOpen = ref(false);
-
+const appName = config.public.appName;
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
@@ -180,7 +180,4 @@ onMounted(() => {
   };
 });
 
-onBeforeUnmount(() => {
-  window.removeEventListener("keydown", handleKeyPress);
-});
 </script>
