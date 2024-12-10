@@ -65,14 +65,12 @@ class Command(BaseCommand):
     def seed_ride_events(self, ride):
         possible_statuses = ["en-route", "pickup", "dropoff"]
 
-        time = timezone.now()
-
-        for i, status in enumerate(possible_statuses):
-            time_adjusted = time + timedelta(
-                minutes=random.randint(0, 59),
-                hours=random.randint(0, 1),
+        time_adjusted = timezone.now()
+        for status in possible_statuses:
+            time_adjusted += timedelta(
+                minutes=random.choice([-1, 1]) * random.randint(0, 59),
+                hours=random.choice([-1, 1]) * random.randint(0, 1),
             )
-
             print(f"Creating event for {status} at {time_adjusted}")
 
             ride_event = RideEvent.objects.create(
@@ -83,6 +81,7 @@ class Command(BaseCommand):
             ride_event.created_at = time_adjusted
             ride_event.save()
             if status == ride.status:
+                time_adjusted = timezone.now()
                 break
 
 
