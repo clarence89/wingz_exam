@@ -42,4 +42,9 @@
     ```
 
 
-` NOTE: I used Docker Compose to run multiple containers in this project. It allows me to easily define and run multi-container Docker applications. It also provides a convenient way to manage the services and their dependencies. In this project, I used Docker Compose to run the Nuxt frontend(with Nuxt UI, Pinia(with Persistent State to handle User Credentials)), Django(simpleJWT/Trench to use JWT for AUTH) backend, Postgres database, PGWEB and CADDY for reverse proxy. It makes it easy for the examiner to run the application on their local machine without having to install and configure all the required services. `
+` NOTE: I used Docker Compose to run multiple containers in this project. It allows me to easily define and run multi-container Docker applications. It also provides a convenient way to manage the services and their dependencies. In this project, I used Docker Compose to run the Nuxt frontend(with Nuxt UI, Pinia(with Persistent State to handle User Credentials)), Django(simpleJWT/Trench to use JWT for AUTH) backend, Postgres database, PGWEB and CADDY for reverse proxy. It makes it easy for the examiner to run the application on their local machine without having to install and configure all the required services. 
+Nuxt UI - For Templating
+Pinia For State Management
+simpleeJWT/Trench for Authentication
+Docker using Multi Container Build - For Ease of Development, Easy Environment Setups, Specially for New Setup OS
+`
